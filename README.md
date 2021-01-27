@@ -41,6 +41,8 @@ Prerequisites
 *   Download latest CTRE release from
     *   [https://github.com/CrossTheRoadElec/Phoenix-Releases/releases/tag/v5.19.4.1](https://github.com/CrossTheRoadElec/Phoenix-Releases/releases/tag/v5.19.4.1)
 
+Note for Mac users: The input setting on Mac are different than Windows and Linux. The Logitech F310 game pad will have to be set to "D" (the little switch on the back of the gamepad, and you will need to use the InputManager.asset-mac file in the Project Settings folder. Just rename the current one to save it, then rename InputManager.asset-mac to InputManager.asset. It will get used when you start Unity.
+
 The steps that follow outline what is being done in the video. They are only a summary and it’s best to watch the video to clearly understand what is being done.
 
 Open Unity Hub
