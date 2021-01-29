@@ -40,6 +40,5 @@ public class DPWMWSBehavior : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-
     }
 }

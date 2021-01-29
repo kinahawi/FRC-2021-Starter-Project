@@ -15,6 +15,7 @@ public class DIOWSBehavior : MonoBehaviour {
 
     public bool isInput = true;
     public bool currentValue ;
+    private bool lastValue ;
 
 
     public bool getOutput() {
@@ -46,7 +47,7 @@ public class DIOWSBehavior : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         // If its an input to the Roborio (i.e.,output from the sim)
-        if (isInput) {
+        if (isInput && lastValue != currentValue) {
             if (ws) {
                 Newtonsoft.Json.Linq.JObject jo = new JObject();
                 jo.Add(new JProperty("type", "DIO"));
@@ -59,5 +60,6 @@ public class DIOWSBehavior : MonoBehaviour {
                 ws.Send(message);
             }
         }
+        lastValue = currentValue ;
     }
 }

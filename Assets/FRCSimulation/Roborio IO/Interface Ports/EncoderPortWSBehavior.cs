@@ -16,6 +16,8 @@ public class EncoderPortWSBehavior : MonoBehaviour {
     private int samplesToAverage ;
     public int count = 0 ;
 
+    private int lastCount = 0 ;
+
 
     public void SetCounts( int c) {
         count = c;
@@ -39,7 +41,7 @@ public class EncoderPortWSBehavior : MonoBehaviour {
     // Update is called once per frame
     void Update() {
 
-        if (ws) {
+        if (ws && count != lastCount) {
             Newtonsoft.Json.Linq.JObject jo = new JObject();
             jo.Add(new JProperty("type", "DIO"));
             jo.Add(new JProperty("device", $"{EncoderNumber}"));
@@ -50,7 +52,6 @@ public class EncoderPortWSBehavior : MonoBehaviour {
             string message = JsonConvert.SerializeObject(jo);
             ws.Send(message);
         }
-
-
+        lastCount= count ;
     }
 }

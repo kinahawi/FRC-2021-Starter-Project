@@ -128,7 +128,7 @@ public class TalonSRXWSInterface : MonoBehaviour {
 
 
     // Update is called once per frame
-    void FixedUpdate() {
+    void Update() {
         UpdateState() ;
 
         // Send encoder data

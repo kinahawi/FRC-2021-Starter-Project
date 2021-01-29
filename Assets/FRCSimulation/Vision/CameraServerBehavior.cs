@@ -10,40 +10,44 @@ using System.IO;
 using UnityEngine.UI;
 using System;
 using System.Text;
-using System.Linq ;
+using System.Linq;
 
 
 public class CameraServerBehavior : MonoBehaviour {
 
     public Camera theCamera;
-    public int portNumber = 8080 ;
+    public int portNumber = 8080;
 
     public int imageWidth = 320;
-    public int imageHeight = 240 ;
-    public int imageQuality = 75 ;
+    public int imageHeight = 240;
+    public int imageQuality = 75;
 
     private RenderTexture rt;
 
     private int frameNum = 0;
 
-    static readonly object lockObject = new object() ;
-    
-    private byte[] frameBytes ;
+    static readonly object lockObject = new object();
 
-    private bool newFrame = false ;
+    private byte[] frameBytes;
 
-    private Thread serverThread ;
+    private bool newFrame = false;
 
-    //private List<Socket> _Clients;
+    private Thread serverThread;
 
+    private Texture2D tex;
 
 
     // Take a shot immediately
     IEnumerator Start() {
-        rt = new RenderTexture(imageWidth, imageHeight, 24);
 
-        serverThread = new Thread( new ThreadStart( ServerMain)) ;
-        serverThread.Start() ;
+        Debug.Log("Started camera server");
+        rt = new RenderTexture(imageWidth, imageHeight, 24);
+        theCamera.targetTexture = rt;
+
+        tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false);
+
+        serverThread = new Thread(new ThreadStart(ServerMain));
+        serverThread.Start();
 
         StartCoroutine("SaveCameraFrame");
         yield return null;
@@ -55,8 +59,6 @@ public class CameraServerBehavior : MonoBehaviour {
     }
 
 
-
-
     IEnumerator SaveCameraFrame() {
         // Create a texture the size of the screen, RGB24 format
 
@@ -64,10 +66,7 @@ public class CameraServerBehavior : MonoBehaviour {
             // We should only read the screen buffer after rendering is complete
             yield return new WaitForEndOfFrame();
 
-            if ( !newFrame) {
-
-                theCamera.targetTexture = rt;
-                theCamera.Render();
+            if (!newFrame) {
 
                 // Backup the currently set RenderTexture
                 RenderTexture prt = RenderTexture.active;
@@ -75,18 +74,14 @@ public class CameraServerBehavior : MonoBehaviour {
                 // Set the current RenderTexture to the temporary one we created
                 RenderTexture.active = rt;
 
-                //render texture to texture2d
-                Texture2D tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false);
                 tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
                 tex.Apply();
 
-                lock( lockObject) {
+                lock (lockObject) {
                     frameBytes = tex.EncodeToJPG(imageQuality);
-                    newFrame = true ;
+                    newFrame = true;
                 }
-
-                // Reset the active RenderTexture
-                RenderTexture.active = prt;
+                //RenderTexture.active = prt;
 
                 frameNum++;
             }
@@ -104,15 +99,8 @@ public class CameraServerBehavior : MonoBehaviour {
         Server.Bind(new IPEndPoint(IPAddress.Any, portNumber));
         Server.Listen(1);
 
-        while ( true ) {
+        while (true) {
             Socket socket = Server.Accept();
-
-            // if (socket != null && socket.Connected) {
-            //     Debug.Log($"Server started on port {portNumber}.");
-            // }
-            // else {
-            //     Debug.Log($"socket null or not connected");
-            // }
 
             using (MjpegWriter wr = new MjpegWriter(new NetworkStream(socket, true))) {
                 wr.WriteHeader();
@@ -142,12 +130,7 @@ public class CameraServerBehavior : MonoBehaviour {
             }
             Debug.Log($"socket no longer connected");
         }
-
     }
-
-
-
-
 }
 
 
@@ -195,21 +178,15 @@ public class MjpegWriter : IDisposable {
         this.Write(ms);
     }
 
-    public void Write(MemoryStream imageStream) { 
+    public void Write(MemoryStream imageStream) {
 
         StringBuilder sb = new StringBuilder();
-        string eol = "\r\n" ;
-
-        // sb.AppendLine();
-        // sb.AppendLine(this.Boundary);
-        // sb.AppendLine("Content-Type: image/jpeg");
-        // sb.AppendLine("Content-Length: " + imageStream.Length.ToString());
-        // sb.AppendLine();
+        string eol = "\r\n";
 
         sb.Append(eol);
-        sb.Append(this.Boundary+eol);
-        sb.Append("Content-Type: image/jpeg"+eol);
-        sb.Append("Content-Length: " + imageStream.Length.ToString()+eol);
+        sb.Append(this.Boundary + eol);
+        sb.Append("Content-Type: image/jpeg" + eol);
+        sb.Append("Content-Length: " + imageStream.Length.ToString() + eol);
         sb.Append(eol);
 
         Write(sb.ToString());

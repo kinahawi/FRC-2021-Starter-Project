@@ -14,6 +14,7 @@ public class AnalogInWSBehavior : MonoBehaviour {
     public int PortNumber;
 
     public double voltage;
+    private double lastVoltage = 0.0 ;
 
     // what about other fields?
     // <avg_bits
@@ -43,7 +44,7 @@ public class AnalogInWSBehavior : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        if (ws) {
+        if (ws && voltage != lastVoltage) {
             Newtonsoft.Json.Linq.JObject jo = new JObject();
             jo.Add(new JProperty("type", "AI"));
             jo.Add(new JProperty("device", $"{PortNumber}"));
@@ -54,5 +55,8 @@ public class AnalogInWSBehavior : MonoBehaviour {
             string message = JsonConvert.SerializeObject(jo);
             ws.Send(message);
         }
+
+        lastVoltage = voltage ;
+         
     }
 }

@@ -56,8 +56,8 @@ public class WebSocketInterface : MonoBehaviour {
                 }
                 else {
                     if (!unhandledPorts.Contains(portName)) {
-                        if (typeField != "Solenoid" && typeField != "PCM") {
-                            Debug.Log($"Unhandled IO type={typeField}, device={deviceName}");
+                        if (portName.ToLower().Contains("gyro") || portName.ToLower().Contains("analog") ) {
+                            //Debug.Log($"Unhandled IO type={typeField}, device={deviceName}");
                         }
                         unhandledPorts.Add(portName);
                     }
